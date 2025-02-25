@@ -1,5 +1,5 @@
 
-import { Button, Input, Table } from 'antd'
+import { Button, Input, message, Table } from 'antd'
 import styles from './ListLog.module.css'
 import { SyncOutlined } from '@ant-design/icons';
 import api from '../services/api';
@@ -30,18 +30,18 @@ export default function ListLog() {
     });
 
     const fetchDataTable = async () => {
-        setIsLoading(true)
+        setIsLoading(true);
         try {
-            const response = await api.post("/Logging/logging-detail", tableParams);
-            setIsLoading(false)
-            if (response.status === 200 && response.data.isValid) {
-                setDataTable(response.data.data.listData);
-                setTotalData(response.data.data.totalRecords);
+            const { data } = await api.post("/Logging/logging-detail", tableParams);
+            setIsLoading(false);
+            if (data.isValid) {
+                setDataTable(data.data.listData);
+                setTotalData(data.data.totalRecords);
             }
         } catch (e: any) {
-            setIsLoading(false)
+            message.error(e.message || "Failed getting data");
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     }
 
