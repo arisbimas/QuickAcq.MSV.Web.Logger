@@ -84,6 +84,8 @@ export default function ListLog() {
 
     useEffect(() => {
         const timeOutId = setTimeout(() => {
+            setDataTable([])
+            setTotalData(0)
             setTableParams(prev => ({
                 ...prev,
                 pageNumber: 1,
