@@ -79,10 +79,6 @@ export default function ListLog() {
     }
 
     useEffect(() => {
-        fetchDataTable()
-    }, [JSON.stringify(tableParams)])
-
-    useEffect(() => {
         const timeOutId = setTimeout(() => {
             setDataTable([])
             setTotalData(0)
@@ -97,6 +93,9 @@ export default function ListLog() {
         return () => clearTimeout(timeOutId);
     }, [filters])
 
+    useEffect(() => {
+        fetchDataTable()
+    }, [JSON.stringify(tableParams)])
 
     const columns = [
         {
