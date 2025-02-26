@@ -17,3 +17,27 @@
     gap: 8px;
     margin-bottom: 1rem;
 }
+
+.section_table_loadmore {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.load_more_button button {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.load_more_information_total_data {
+    position: absolute;
+    right: 0;
+}
+
+.load_more_information_total_data p {
+    margin-bottom: 0;
+}

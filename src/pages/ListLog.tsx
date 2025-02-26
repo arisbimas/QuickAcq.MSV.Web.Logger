@@ -1,5 +1,5 @@
 
-import { Button, Input, message, Table } from 'antd'
+import { Button, Input, message, Skeleton, Table } from 'antd'
 import styles from './ListLog.module.css'
 import { SyncOutlined } from '@ant-design/icons';
 import api from '../services/api';
@@ -57,6 +57,13 @@ export default function ListLog() {
             setDataTable([]);
         }
     };
+
+    const onClickLoadMore = () => {
+        setTableParams(prevParams => ({
+            ...prevParams,
+            pageNumber: prevParams.pageNumber + 1
+        }))
+    }
 
     useEffect(() => {
         fetchDataTable()
@@ -147,25 +154,42 @@ export default function ListLog() {
                     loading={isLoading}
                     dataSource={dataTable}
                     onChange={handleTableChange}
-                    pagination={{
-                        position: ['bottomCenter'],
-                        current: tableParams?.pageNumber,
-                        pageSize: tableParams?.pageSize,
-                        total: totalData,
-                        pageSizeOptions: ["5", "10", "25", "50"],
-                        showSizeChanger: true,
-                        locale: { items_per_page: "" },
-                        showTotal: (total, range) => {
-                            return (
-                                <span>
-                                    Showing <strong>{range[0]}</strong>-
-                                    <strong>{range[1]}</strong> of <strong>{total}</strong>
-                                </span>
-                            )
-                        },
-                    }}
+                    // pagination={{
+                    //     position: ['bottomCenter'],
+                    //     current: tableParams?.pageNumber,
+                    //     pageSize: tableParams?.pageSize,
+                    //     total: totalData,
+                    //     pageSizeOptions: ["5", "10", "25", "50"],
+                    //     showSizeChanger: true,
+                    //     locale: { items_per_page: "" },
+                    //     showTotal: (total, range) => {
+                    //         return (
+                    //             <span>
+                    //                 Showing <strong>{range[0]}</strong>-
+                    //                 <strong>{range[1]}</strong> of <strong>{total}</strong>
+                    //             </span>
+                    //         )
+                    //     },
+                    // }}
+                    pagination={false}
                     sortDirections={["ascend", "descend", "ascend"]}
                 />
+                <div className={styles.section_table_loadmore}>
+                    <div className={styles.load_more_button}>
+                        <Button
+                            loading={isLoading}
+                            onClick={onClickLoadMore}
+                            disabled={totalData <= (tableParams.pageNumber * tableParams.pageSize)}
+                        >Load More</Button>
+                    </div>
+                    <div className={styles.load_more_information_total_data}>
+                        {isLoading ? <Skeleton.Input active size='small' /> :
+                            <p>{
+                                `Showing ${dataTable?.length > 0 ? 1 : 0}-${(tableParams.pageNumber * tableParams.pageSize) > totalData ? totalData : (tableParams.pageNumber * tableParams.pageSize) || 0} of ${totalData}`}
+                            </p>
+                        }
+                    </div>
+                </div>
             </section>
         </div>
     )
