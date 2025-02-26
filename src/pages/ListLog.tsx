@@ -35,7 +35,8 @@ export default function ListLog() {
             const { data } = await api.post("/Logging/logging-detail", tableParams);
             setIsLoading(false);
             if (data.isValid) {
-                setDataTable(data.data.listData);
+                const listData = data.data.listData
+                setDataTable((prev: any) => [...prev, ...listData])
                 setTotalData(data.data.totalRecords);
             }
         } catch (e: any) {
@@ -45,17 +46,29 @@ export default function ListLog() {
         }
     }
 
-    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
-        setTableParams((prevParams: any) => ({
-            ...prevParams,
-            pageNumber: pagination?.current,
-            pageSize: pagination?.pageSize,
-            orderBy: sorter?.field || prevParams?.orderBy,
-            isAscending: sorterTable(sorter?.order, prevParams?.isAscending)
-        }));
-        if (pagination.pageSize !== tableParams?.pageSize) {
+    const handleTableChange = (pagination: any, filters: any, sorter: any, extra: any) => {
+        if (extra?.action === "sort") {
             setDataTable([]);
+            setTableParams(prevParams => {
+                return {
+                    ...prevParams,
+                    pageNumber: 1,
+                    orderBy: sorter?.field || prevParams?.orderBy,
+                    isAscending: sorterTable(sorter?.order, prevParams?.isAscending)
+                }
+            });
         }
+
+        // setTableParams((prevParams: any) => ({
+        //     ...prevParams,
+        //     pageNumber: pagination?.current,
+        //     pageSize: pagination?.pageSize,
+        //     orderBy: sorter?.field || prevParams?.orderBy,
+        //     isAscending: sorterTable(sorter?.order, prevParams?.isAscending)
+        // }));
+        // if (pagination.pageSize !== tableParams?.pageSize) {
+        //     setDataTable([]);
+        // }
     };
 
     const onClickLoadMore = () => {
