@@ -3,7 +3,7 @@ import { Button, Input, message, Skeleton, Table } from 'antd'
 import styles from './ListLog.module.css'
 import { SyncOutlined } from '@ant-design/icons';
 import api from '../services/api';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { sorterTable } from '../utils/helper';
 import _ from 'lodash';
 
@@ -29,6 +29,7 @@ export default function ListLog() {
             ...filters
         }
     });
+    const isFirstLoadList = useRef(false);
 
     const fetchDataTable = async () => {
         setIsLoading(true);
@@ -39,6 +40,16 @@ export default function ListLog() {
                 const listData = data.data.listData
                 setDataTable((prev: any) => [...prev, ...listData])
                 setTotalData(data.data.totalRecords);
+                if (isFirstLoadList.current) {
+                    setTimeout(() => {
+                        // Scroll ke bagian bawah halaman
+                        window.scrollTo({
+                            top: document.body.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    }, 300);
+                }
+                isFirstLoadList.current = true
             }
 
             // setDataTable([
