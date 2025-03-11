@@ -236,6 +236,7 @@ export default function ListLogV2() {
 
     const handleTableChange = (pagination: any, filters: any, sorter: any, extra: any) => {
         if (extra?.action === "sort") {
+            setIsLoading(true);
             setDataTable([]);
             setTableParams(prevParams => {
                 return {
@@ -277,6 +278,12 @@ export default function ListLogV2() {
     }, [JSON.stringify(tableParams)])
 
     const columns = [
+        {
+            key: 'no',
+            title: 'NO',
+            dataIndex: 'no',
+            render: (text, record, index) => index + 1
+        },
         {
             key: 'traceId',
             title: 'TRACE ID',
@@ -331,7 +338,7 @@ export default function ListLogV2() {
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0].isIntersecting && !isLoading) {
+                if (entries[0].isIntersecting && !isLoading && hasMoreData && dataTable.length > 0) {
                     onClickLoadMore()
                 }
             },
@@ -349,7 +356,6 @@ export default function ListLogV2() {
         };
     }, [hasMoreData, isLoading])
 
-
     return (
         <div className={styles.container}>
             <section className={styles.section_header}>
@@ -359,7 +365,18 @@ export default function ListLogV2() {
                     <Input allowClear placeholder="Find by Module" onChange={(e) => setFilters({ ...filters, module: e.target.value })} />
                     <Input allowClear placeholder="Find by Action" onChange={(e) => setFilters({ ...filters, action: e.target.value })} />
                 </div>
-                <Button icon={<SyncOutlined />} onClick={fetchDataTable}>Refresh</Button>
+                <Button
+                    icon={<SyncOutlined />}
+                    onClick={() => {
+                        setDataTable([]);
+                        setTableParams(prevParams => ({
+                            ...prevParams,
+                            pageNumber: 1
+                        }))
+                    }}
+                >
+                    Refresh
+                </Button>
             </section>
             <section className={styles.section_table}>
                 <Table
@@ -370,7 +387,10 @@ export default function ListLogV2() {
                     dataSource={dataTable}
                     onChange={handleTableChange}
                     pagination={false}
+                    sortDirections={["ascend", "descend", "ascend"]}
                 />
+                {isLoading && <div style={{ textAlign: "center", margin: "20px 0" }}>Loading...</div>}
+                {!hasMoreData && !isLoading && <div style={{ textAlign: "center", margin: "20px 0" }}>No more data</div>}
                 {/* Sentinel */}
                 <div ref={observerTarget} style={{ height: "20px" }} />
             </section>
