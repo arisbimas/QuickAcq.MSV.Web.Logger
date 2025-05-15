@@ -1,15 +1,26 @@
 
-import { Button, Input, message, Table } from 'antd'
+import { Button, Col, Input, message, Row, Table, TablePaginationConfig } from 'antd'
 import styles from './ListLog.module.css'
 import { SyncOutlined } from '@ant-design/icons';
 import api from '../services/api';
 import { useEffect, useRef, useState } from 'react';
 import { sorterTable } from '../utils/helper';
 import _ from 'lodash';
+import { ColumnsType, FilterValue, SorterResult, TableCurrentDataSource } from "antd/es/table/interface";
+
+type DataTableState = {
+    traceId: string,
+    docNumber: string,
+    process: string,
+    module: string,
+    action: string,
+    timestamp: string,
+    detail: string,
+}
 
 export default function ListLogV2() {
-    const observerTarget = useRef(null);
-    const [dataTable, setDataTable] = useState<any>([])
+    const observerTarget = useRef<HTMLDivElement>(null);
+    const [dataTable, setDataTable] = useState<DataTableState[]>([])
     const [totalData, setTotalData] = useState<number>(0)
     const [isLoading, setIsLoading] = useState(false)
     const [filters, setFilters] = useState({
@@ -39,211 +50,37 @@ export default function ListLogV2() {
             setIsLoading(false);
             if (data.isValid) {
                 const listData = data.data.listData
-                setDataTable((prev: any) => [...prev, ...listData])
+                setDataTable((prev: DataTableState[]) => [...prev, ...listData])
                 setTotalData(data.data.totalRecords);
             }
-
-            // setDataTable([
-            //     {
-            //         traceId: "E001",
-            //         docNumber: "DOC-2025-001",
-            //         process: "Invoice Processing",
-            //         module: "Finance",
-            //         action: "Create",
-            //         item: "Detailed invoice for Q1 2025 marketing campaign expenses including digital advertising, content creation, and social media management services provided by Agency XYZ (Reference: MKT-2025-Q1-001)",
-            //         timestamp: "2025-02-24 09:30:15"
-            //     },
-            //     {
-            //         traceId: "E002",
-            //         docNumber: "DOC-2025-002",
-            //         process: "Purchase Order",
-            //         module: "Procurement",
-            //         action: "Update",
-            //         item: "Purchase order for new office equipment including 25 ergonomic chairs, 15 adjustable standing desks, and 10 dual-monitor setups for the expanding development team in Building B, Floor 3",
-            //         timestamp: "2025-02-24 10:15:22"
-            //     },
-            //     {
-            //         traceId: "E003",
-            //         docNumber: "DOC-2025-003",
-            //         process: "Payment Verification",
-            //         module: "Finance",
-            //         action: "Review",
-            //         item: "Monthly vendor payment batch including software licenses, cloud services, and infrastructure maintenance fees for January 2025 - Total amount: $157,890.45 covering 12 different vendors",
-            //         timestamp: "2025-02-24 11:20:33"
-            //     },
-            //     {
-            //         traceId: "E004",
-            //         docNumber: "DOC-2025-004",
-            //         process: "Inventory Check",
-            //         module: "Warehouse",
-            //         action: "Verify",
-            //         item: "Comprehensive inventory audit of warehouse section C-15 containing electronic components, including microprocessors, RAM modules, and storage devices from multiple manufacturers - Total SKUs: 456",
-            //         timestamp: "2025-02-24 12:45:18"
-            //     },
-            //     {
-            //         traceId: "E005",
-            //         docNumber: "DOC-2025-005",
-            //         process: "Employee Onboarding",
-            //         module: "HR",
-            //         action: "Create",
-            //         item: "New employee onboarding package for Senior Software Engineer position including workstation setup, system access credentials, and orientation schedule for the Cloud Infrastructure team",
-            //         timestamp: "2025-02-24 13:10:45"
-            //     },
-            //     {
-            //         traceId: "E006",
-            //         docNumber: "DOC-2025-006",
-            //         process: "Contract Review",
-            //         module: "Legal",
-            //         action: "Approve",
-            //         item: "Annual service agreement renewal with cloud infrastructure provider including updated terms for enhanced security measures, increased storage capacity, and premium support package for enterprise customers",
-            //         timestamp: "2025-02-24 14:25:30"
-            //     },
-            //     {
-            //         traceId: "E007",
-            //         docNumber: "DOC-2025-007",
-            //         process: "Sales Order",
-            //         module: "Sales",
-            //         action: "Create",
-            //         item: "Enterprise software license package for multinational corporation including custom implementations, dedicated support team, and specialized training modules for 5000+ end users across 12 countries",
-            //         timestamp: "2025-02-24 15:40:12"
-            //     },
-            //     {
-            //         traceId: "E008",
-            //         docNumber: "DOC-2025-008",
-            //         process: "Quality Check",
-            //         module: "Production",
-            //         action: "Verify",
-            //         item: "Quality assurance report for the new mobile application release covering functionality testing, performance optimization, security vulnerability assessment, and user interface validation across multiple devices",
-            //         timestamp: "2025-02-24 16:15:55"
-            //     },
-            //     {
-            //         traceId: "E009",
-            //         docNumber: "DOC-2025-009",
-            //         process: "Expense Claim",
-            //         module: "Finance",
-            //         action: "Review",
-            //         item: "Travel expense report for international conference attendance including airfare, accommodation, meals, and transportation for three senior executives - Total duration: 5 days in Silicon Valley",
-            //         timestamp: "2025-02-24 17:20:40"
-            //     },
-            //     {
-            //         traceId: "E010",
-            //         docNumber: "DOC-2025-010",
-            //         process: "Maintenance Request",
-            //         module: "Facilities",
-            //         action: "Create",
-            //         item: "Emergency maintenance request for data center cooling system malfunction affecting server room A-101 - Priority: High - Impact: Potential service disruption for North American clients",
-            //         timestamp: "2025-02-24 18:05:25"
-            //     },
-            //     {
-            //         traceId: "E011",
-            //         docNumber: "DOC-2025-011",
-            //         process: "Customer Complaint",
-            //         module: "Customer Service",
-            //         action: "Resolve",
-            //         item: "Critical customer issue regarding system performance degradation during peak hours affecting multiple enterprise clients in the APAC region - Impact: 230,000 end users experiencing delayed responses",
-            //         timestamp: "2025-02-24 09:45:30"
-            //     },
-            //     {
-            //         traceId: "E012",
-            //         docNumber: "DOC-2025-012",
-            //         process: "Training Session",
-            //         module: "HR",
-            //         action: "Schedule",
-            //         item: "Comprehensive cybersecurity awareness training program for all employees including modules on password security, phishing prevention, data protection, and compliance with industry regulations",
-            //         timestamp: "2025-02-24 10:30:15"
-            //     },
-            //     {
-            //         traceId: "E013",
-            //         docNumber: "DOC-2025-013",
-            //         process: "Supplier Evaluation",
-            //         module: "Procurement",
-            //         action: "Review",
-            //         item: "Annual performance evaluation of key hardware suppliers including delivery times, product quality, pricing competitiveness, and after-sales support - Coverage period: January 2024 to December 2024",
-            //         timestamp: "2025-02-24 11:55:20"
-            //     },
-            //     {
-            //         traceId: "E014",
-            //         docNumber: "DOC-2025-014",
-            //         process: "Project Planning",
-            //         module: "Project Management",
-            //         action: "Update",
-            //         item: "Project plan revision for the next-generation platform development including updated timeline, resource allocation, risk assessment, and budget adjustments for Phase 2 implementation",
-            //         timestamp: "2025-02-24 13:25:45"
-            //     },
-            //     {
-            //         traceId: "E015",
-            //         docNumber: "DOC-2025-015",
-            //         process: "Budget Review",
-            //         module: "Finance",
-            //         action: "Approve",
-            //         item: "Q2 2025 departmental budget allocation review including IT infrastructure upgrades, software license renewals, staff training programs, and contingency funds for emergency maintenance",
-            //         timestamp: "2025-02-24 14:50:30"
-            //     },
-            //     {
-            //         traceId: "E016",
-            //         docNumber: "DOC-2025-016",
-            //         process: "Equipment Request",
-            //         module: "IT",
-            //         action: "Process",
-            //         item: "Specialized development environment setup request including high-performance workstations, GPU clusters for AI model training, and dedicated network infrastructure for the Machine Learning team",
-            //         timestamp: "2025-02-24 15:35:25"
-            //     },
-            //     {
-            //         traceId: "E017",
-            //         docNumber: "DOC-2025-017",
-            //         process: "Security Audit",
-            //         module: "Security",
-            //         action: "Verify",
-            //         item: "Quarterly security compliance audit report covering network infrastructure, application security, access control systems, and incident response procedures - Period: Q1 2025",
-            //         timestamp: "2025-02-24 16:40:10"
-            //     },
-            //     {
-            //         traceId: "E018",
-            //         docNumber: "DOC-2025-018",
-            //         process: "Leave Application",
-            //         module: "HR",
-            //         action: "Approve",
-            //         item: "Extended leave request for senior project manager including handover documentation, project status reports, team reassignments, and coverage plan for ongoing projects during 3-month sabbatical",
-            //         timestamp: "2025-02-24 17:15:55"
-            //     },
-            //     {
-            //         traceId: "E019",
-            //         docNumber: "DOC-2025-019",
-            //         process: "Marketing Campaign",
-            //         module: "Marketing",
-            //         action: "Create",
-            //         item: "Global product launch campaign strategy including digital marketing initiatives, social media campaigns, influencer partnerships, and event planning for new enterprise solution release",
-            //         timestamp: "2025-02-24 18:20:40"
-            //     },
-            //     {
-            //         traceId: "E020",
-            //         docNumber: "DOC-2025-020",
-            //         process: "Software Update",
-            //         module: "IT",
-            //         action: "Deploy",
-            //         item: "Critical system update deployment plan including security patches, performance optimizations, and new feature rollout affecting 1.2 million users across 15 different time zones",
-            //         timestamp: "2025-02-24 19:05:15"
-            //     }
-            // ]);
-            // setTotalData(20);
-            // setIsLoading(false);
-        } catch (e: any) {
-            message.error(e.message || "Failed getting data");
+        } catch (error: unknown) {
+            // Proper error handling with type assertion
+            const errorMessage = error instanceof Error
+                ? error.message
+                : "Failed getting data";
+            message.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
     }
 
-    const handleTableChange = (pagination: any, filters: any, sorter: any, extra: any) => {
-        if (extra?.action === "sort") {
+    const handleTableChange = (
+        pagination: TablePaginationConfig,
+        filters: Record<string, FilterValue | null>,
+        sorter: SorterResult<DataTableState> | SorterResult<DataTableState>[],
+        extra: TableCurrentDataSource<DataTableState>
+    ) => {
+        if (extra.action === "sort") {
             setIsLoading(true);
             setDataTable([]);
             setTableParams(prevParams => {
+                // Handle single sorter or multiple sorters
+                const singleSorter = !Array.isArray(sorter) ? sorter : sorter[0];
                 return {
                     ...prevParams,
                     pageNumber: 1,
-                    orderBy: sorter?.field || prevParams?.orderBy,
-                    isAscending: sorterTable(sorter?.order, prevParams?.isAscending)
+                    orderBy: singleSorter.field?.toString() || prevParams?.orderBy,
+                    isAscending: sorterTable(singleSorter?.order, prevParams?.isAscending)
                 }
             });
         }
@@ -277,7 +114,7 @@ export default function ListLogV2() {
         fetchDataTable()
     }, [JSON.stringify(tableParams)])
 
-    const columns = [
+    const columns: ColumnsType<DataTableState> = [
         {
             key: 'no',
             title: 'NO',
@@ -360,10 +197,20 @@ export default function ListLogV2() {
         <div className={styles.container}>
             <section className={styles.section_header}>
                 <div className={styles.section_header_search}>
-                    <Input allowClear placeholder="Find by Trace Id" onChange={(e) => setFilters({ ...filters, traceId: e.target.value })} />
-                    <Input allowClear placeholder="Find by Doc Number" onChange={(e) => setFilters({ ...filters, docNumber: e.target.value })} />
-                    <Input allowClear placeholder="Find by Module" onChange={(e) => setFilters({ ...filters, module: e.target.value })} />
-                    <Input allowClear placeholder="Find by Action" onChange={(e) => setFilters({ ...filters, action: e.target.value })} />
+                    <Row gutter={[8, 8]}>
+                        <Col>
+                            <Input allowClear placeholder="Find by Trace Id" onChange={(e) => setFilters({ ...filters, traceId: e.target.value })} />
+                        </Col>
+                        <Col>
+                            <Input allowClear placeholder="Find by Doc Number" onChange={(e) => setFilters({ ...filters, docNumber: e.target.value })} />
+                        </Col>
+                        <Col>
+                            <Input allowClear placeholder="Find by Module" onChange={(e) => setFilters({ ...filters, module: e.target.value })} />
+                        </Col>
+                        <Col>
+                            <Input allowClear placeholder="Find by Action" onChange={(e) => setFilters({ ...filters, action: e.target.value })} />
+                        </Col>
+                    </Row>
                 </div>
                 <Button
                     icon={<SyncOutlined />}
@@ -382,6 +229,7 @@ export default function ListLogV2() {
                 <Table
                     size='small'
                     bordered
+                    scroll={{ x: "max-content" }}
                     columns={columns}
                     loading={isLoading}
                     dataSource={dataTable}
@@ -390,7 +238,7 @@ export default function ListLogV2() {
                     sortDirections={["ascend", "descend", "ascend"]}
                 />
                 {isLoading && <div style={{ textAlign: "center", margin: "20px 0" }}>Loading...</div>}
-                {!hasMoreData && !isLoading && <div style={{ textAlign: "center", margin: "20px 0" }}>No more data</div>}
+                {!hasMoreData && !isLoading && totalData > 0 && <div style={{ textAlign: "center", margin: "20px 0" }}>No more data</div>}
                 {/* Sentinel */}
                 <div ref={observerTarget} style={{ height: "20px" }} />
             </section>
