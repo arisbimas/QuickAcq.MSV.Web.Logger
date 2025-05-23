@@ -65,8 +65,8 @@ export default function ListLogV2() {
     }
 
     const handleTableChange = (
-        pagination: TablePaginationConfig,
-        filters: Record<string, FilterValue | null>,
+        _pagination: TablePaginationConfig,
+        _filters: Record<string, FilterValue | null>,
         sorter: SorterResult<DataTableState> | SorterResult<DataTableState>[],
         extra: TableCurrentDataSource<DataTableState>
     ) => {
@@ -119,7 +119,7 @@ export default function ListLogV2() {
             key: 'no',
             title: 'NO',
             dataIndex: 'no',
-            render: (text, record, index) => index + 1
+            render: (_text, _record, index) => index + 1
         },
         {
             key: 'traceId',

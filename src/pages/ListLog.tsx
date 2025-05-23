@@ -243,7 +243,7 @@ export default function ListLog() {
         }
     }
 
-    const handleTableChange = (pagination: any, filters: any, sorter: any, extra: any) => {
+    const handleTableChange = (_pagination: any, _filters: any, sorter: any, extra: any) => {
         if (extra?.action === "sort") {
             setDataTable([]);
             setTableParams(prevParams => {
